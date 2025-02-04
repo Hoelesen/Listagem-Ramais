@@ -23,8 +23,8 @@ sudo apt install nodejs npm sqlite3 git -y
 
 ### 3️⃣ Clonar o repositório
 ```sh
-git clone https://github.com/seuusuario/seurepositorio.git
-cd seurepositorio
+sudo git clone https://github.com/Hoelesen/Listagem-Ramais.git /var/www/html/ramais
+cd /var/www/html/ramais
 ```
 
 ### 4️⃣ Instalar pacotes do Node.js
@@ -58,8 +58,8 @@ Description=Servidor de Ramais em Node.js
 After=network.target
 
 [Service]
-ExecStart=/usr/bin/node /caminho/para/seu/server.js
-WorkingDirectory=/caminho/para/seu/projeto
+ExecStart=/usr/bin/node /var/www/html/ramais/server.js
+WorkingDirectory=/var/www/html/ramais
 Restart=always
 User=root
 Environment=NODE_ENV=production
@@ -120,14 +120,14 @@ Os logs são armazenados em:
 ```
 Para visualizar em tempo real:
 ```sh
-tail -f /var/log/ramais.log
+tail -f /var/log/ramais.log  
 ```
 
 ## Atualização do Projeto
 
 Caso haja uma nova versão no repositório, atualize com:
 ```sh
-cd /caminho/para/seu/projeto
+cd /var/www/html/ramais
 git pull origin main
 npm install
 sudo systemctl restart ramais
