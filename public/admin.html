@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Administração de Ramais</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <style>
+        /* Estilos personalizados */
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Arial', sans-serif;
+        }
+
+        h2, h3 {
+            color: #343a40;
+            font-weight: bold;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .form-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-control {
+            border-radius: 20px;
+            padding: 10px 20px;
+            border: 1px solid #ced4da;
+        }
+
+        .btn-custom {
+            background-color: #007bff;
+            color: white;
+            border-radius: 20px;
+            padding: 10px 20px;
+            border: none;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn-custom:hover {
+            background-color: #0056b3;
+        }
+
+        .btn-warning {
+            background-color: #ffc107;
+            color: #343a40;
+            border-radius: 20px;
+            padding: 5px 15px;
+            border: none;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn-warning:hover {
+            background-color: #e0a800;
+        }
+
+        .btn-danger {
+            background-color: #dc3545;
+            color: white;
+            border-radius: 20px;
+            padding: 5px 15px;
+            border: none;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn-danger:hover {
+            background-color: #c82333;
+        }
+
+        .table {
+            margin-top: 20px;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .table thead {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .table th, .table td {
+            padding: 12px;
+            text-align: center;
+        }
+
+        .table tbody tr:hover {
+            background-color: #f1f1f1;
+            transition: background-color 0.3s ease;
+        }
+
+        .actions {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-4">
+        <h2>Administração de Ramais</h2>
+        <div class="form-container">
+            <form id="ramalForm">
+                <input type="hidden" id="ramalId">
+                <div class="mb-3">
+                    <label for="numero" class="form-label">Número do Ramal</label>
+                    <input type="text" class="form-control" id="numero" required>
+                </div>
+                <div class="mb-3">
+                    <label for="nome" class="form-label">Nome</label>
+                    <input type="text" class="form-control" id="nome" required>
+                </div>
+                <div class="mb-3">
+                    <label for="descricao" class="form-label">Descrição</label>
+                    <input type="text" class="form-control" id="descricao">
+                </div>
+                <div class="mb-3">
+                    <label for="centroCusto" class="form-label">Centro de Custo</label>
+                    <input type="text" class="form-control" id="centroCusto">
+                </div>
+                <button type="submit" class="btn btn-custom w-100">Salvar</button>
+            </form>
+        </div>
+
+        <h3 class="mt-4">Lista de Ramais</h3>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Número</th>
+                    <th>Nome</th>
+                    <th>Descrição</th>
+                    <th>Centro de Custo</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody id="ramaisTable"></tbody>
+        </table>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", carregarRamais);
+
+        document.getElementById("ramalForm").addEventListener("submit", function(event) {
+            event.preventDefault();
+            const id = document.getElementById("ramalId").value;
+            const numero = document.getElementById("numero").value;
+            const nome = document.getElementById("nome").value;
+            const descricao = document.getElementById("descricao").value;
+            const centroCusto = document.getElementById("centroCusto").value;
+            
+            const dados = { numero, nome, descricao, centro_custo: centroCusto };
+            
+            if (id) {
+                fetch(`/api/ramais/${id}`, {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(dados)
+                }).then(() => carregarRamais());
+            } else {
+                fetch("/api/ramais", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(dados)
+                }).then(() => carregarRamais());
+            }
+            document.getElementById("ramalForm").reset();
+        });
+
+        function carregarRamais() {
+            fetch("/api/ramais")
+                .then(res => res.json())
+                .then(data => {
+                    let html = "";
+                    data.forEach(ramal => {
+                        html += `<tr>
+                            <td>${ramal.numero}</td>
+                            <td>${ramal.nome}</td>
+                            <td>${ramal.descricao}</td>
+                            <td>${ramal.centro_custo}</td>
+                            <td>
+                                <div class="actions">
+                                    <button class="btn btn-warning" onclick="editarRamal(${ramal.id}, '${ramal.numero}', '${ramal.nome}', '${ramal.descricao}', '${ramal.centro_custo}')">Editar</button>
+                                    <button class="btn btn-danger" onclick="removerRamal(${ramal.id})">Remover</button>
+                                </div>
+                            </td>
+                        </tr>`;
+                    });
+                    document.getElementById("ramaisTable").innerHTML = html;
+                });
+        }
+
+        function editarRamal(id, numero, nome, descricao, centroCusto) {
+            document.getElementById("ramalId").value = id;
+            document.getElementById("numero").value = numero;
+            document.getElementById("nome").value = nome;
+            document.getElementById("descricao").value = descricao;
+            document.getElementById("centroCusto").value = centroCusto;
+        }
+
+        function removerRamal(id) {
+            if (confirm("Tem certeza que deseja remover este ramal?")) {
+                fetch(`/api/ramais/${id}`, { method: "DELETE" })
+                    .then(() => carregarRamais());
+            }
+        }
+    </script>
+</body>
+</html>
