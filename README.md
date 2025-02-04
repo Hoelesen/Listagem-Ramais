@@ -32,10 +32,11 @@ cd /var/www/html/ramais
 npm install
 ```
 
-### 5️⃣ Configurar o banco de dados SQLite
+### 5️⃣ Criar um novo banco de dados limpo
 ```sh
-node setup.js  # Caso haja um script para criar a estrutura do banco
+node setup.js
 ```
+Esse comando criará o arquivo `ramais.db` com a estrutura correta, mas sem registros.
 
 ## Executando o Servidor
 
@@ -120,7 +121,7 @@ Os logs são armazenados em:
 ```
 Para visualizar em tempo real:
 ```sh
-tail -f /var/log/ramais.log  
+tail -f /var/log/ramais.log
 ```
 
 ## Atualização do Projeto
@@ -136,4 +137,3 @@ sudo systemctl restart ramais
 ---
 
 Essa documentação cobre os principais passos para instalar, configurar e gerenciar o projeto no Linux (Debian). Caso precise de ajustes, basta modificar conforme sua necessidade! 🚀
-
